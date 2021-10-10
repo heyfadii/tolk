@@ -42,10 +42,22 @@
         if (phrase && textarea && textarea.value === ''){
           //translate it
           var to_trans = phrase.text().trim();
+          var regex = /%{\w*}/g;
+
+          var i = 0;
+          hits = [];
+          while((hit = regex.exec(to_trans)) !== null) {
+            to_trans = to_trans.replace(hit, ` __${i}`)
+            hits.push([hit, ` __${i}`]);
+            i++;
+          }
           $.post( "https://translation.googleapis.com/language/translate/v2?key=<%= ENV['TOLK_GOOGLE_TRANSLATE_API_KEY']%>",
             { q: to_trans, target: target_language } ).done(function( data ) {
-              var result = data['data']['translations'][0]['translatedText'].trim()
-              textarea.value = result;
+              var resultText = data['data']['translations'][0]['translatedText'].trim()
+              hits.forEach(hit => {
+                resultText = resultText.replace(hit[1], hit[0][0])
+              })
+              textarea.value = resultText;
               //textarea.select();
           });
         }
