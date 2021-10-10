@@ -43,11 +43,14 @@
               <td class="original">
                 <%= text_area_tag :"translations[][original_text]", format_i18n_text_area_value(phrase.translations.primary.text), disabled: true %>
 
-                <% if params[:q].present? -%>
-                  <%= highlight(format_i18n_value(phrase.translations.primary.text), params[:q]) -%>
-                <% else -%>
-                  <%= format_i18n_value(phrase.translations.primary.text) -%>
-                <% end -%>
+                <span class="to_translate">
+                  <% if params[:q].present? -%>
+                    <%= highlight(format_i18n_value(phrase.translations.primary.text), params[:q]) -%>
+                  <% else -%>
+                    <%= format_i18n_value(phrase.translations.primary.text) -%>
+                  <% end -%>
+                </span>
+
                 <%= boolean_warning if phrase.translations.primary.boolean? -%>
 
                 <span class="translation-key" title="<%= phrase.key %>"><%= truncate(phrase.key, length: 100) %></span>

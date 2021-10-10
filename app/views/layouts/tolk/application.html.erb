@@ -4,13 +4,14 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title>Tolk</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <%= stylesheet_link_tag "tolk/application" %>
   <%= yield :head %>
 </head>
 
 <body>
   <div class="container">
-
+    <span id ="target_language" style="display:none;"><%= @locale.name if @locale %></span>
     <header>
       <h1>
         <%= link_to "Tolk", root_path %>
@@ -29,5 +30,47 @@
 
   <%= javascript_include_tag "tolk/libraries" %>
   <%= javascript_include_tag "tolk/application" %>
+  <script type="text/javascript">
+
+    // Translate the phrase when the translator clicks on the text area
+    // only fires if textarea is blank
+    $(document).ready(function(){
+      $('textarea').click(function(event) {
+        var phrase = $(this.closest('tr')).find('span.to_translate');
+        var textarea = this;
+        var target_language = "<%=@locale.name%>";
+        if (phrase && textarea && textarea.value === ''){
+          //translate it
+          var to_trans = phrase.text().trim();
+          $.post( "https://translation.googleapis.com/language/translate/v2?key=<%= ENV['TOLK_GOOGLE_TRANSLATE_API_KEY']%>",
+            { q: to_trans, target: target_language } ).done(function( data ) {
+              var result = data['data']['translations'][0]['translatedText'].trim()
+              textarea.value = result;
+              //textarea.select();
+          });
+        }
+      });
+    });
+
+  /*
+  // translate everything on the page. Not so useful as translator has to do everything.
+    $$('table.translations tr').each(function(row){
+      var phrase = row.down('span.to_translate');
+      var textarea = row.down('textarea');
+      var target_language = $('target_language').innerHTML;
+
+      if (phrase && textarea && $F(textarea).blank){
+        //translate it
+        var to_trans = phrase.innerHTML;
+        google.language.translate(to_trans, "", target_language, function(result) {
+          if (!result.error) {
+            textarea.setValue(result.translation)
+          }
+        });
+      }
+    });
+  */
+
+  </script>
 </body>
 </html>
